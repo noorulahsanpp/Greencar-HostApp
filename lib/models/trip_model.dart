@@ -5,10 +5,11 @@ class TripModel{
   String toplace;
   String date;
   String seats;
+  String shareprice;
   List fromplacelatlong;
   List toplacelatlong;
 
-  TripModel({this.fromplace, this.toplace, this.date, this.seats,
+  TripModel({this.fromplace, this.toplace, this.date, this.seats,this.shareprice,
       this.fromplacelatlong, this.toplacelatlong});
 
   factory TripModel.fromDocument(DocumentSnapshot doc){
@@ -19,6 +20,7 @@ class TripModel{
       seats:doc['seats'],
       fromplacelatlong:doc['fromplacelatlong'],
       toplacelatlong:doc['toplacelatlong'],
+      shareprice: doc['shareprice'],
     );
   }
 }

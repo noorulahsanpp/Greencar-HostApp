@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:driver_app/allscreens/carInfoScreen.dart';
+import 'package:driver_app/models/host_model.dart';
+import 'package:driver_app/util/configmaps.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -13,11 +15,13 @@ import 'package:driver_app/datahandler/appData.dart';
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
   runApp(MyApp());
 }
 
 // DatabaseReference _databaseReference = FirebaseDatabase.instance.reference().child("users");
 CollectionReference<Map<String, dynamic>> driverReference = FirebaseFirestore.instance.collection("hosts");
+String userId = currentFirebaseUser.uid;
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -33,7 +37,7 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        initialRoute: MainScreen.idScreen,
+        initialRoute: FirebaseAuth.instance.currentUser == null ? LoginScreen.idScreen : MainScreen.idScreen,
         routes: {
           RegistrationScreen.idScreen:(context) => RegistrationScreen(),
           LoginScreen.idScreen:(context) => LoginScreen(),

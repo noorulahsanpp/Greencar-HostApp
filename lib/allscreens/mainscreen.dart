@@ -25,6 +25,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   TabController tabController;
   int selectedIndex = 0;
 
+
   void onItemClicked(int index){
     setState(() {
       selectedIndex = index;
@@ -33,21 +34,21 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   }
 
 
-  getUserData() async{
+  getUserData() {
     User user = FirebaseAuth.instance.currentUser;
-    DocumentSnapshot documentSnapshot = await driverReference.doc(user.uid).get().then((value) {
-      currentUser =HostModel.fromDocument(value);
-      print("ssssssssssssssssssssssssssssss${currentUser.name}");
+    driverReference.doc(user.uid).get().then((value) {
+      setState(() {
+        currentUser =HostModel.fromDocument(value);
+      });
     });
   }
 
   @override
   void initState() {
     // TODO: implement initState
-
+getUserData();
     super.initState();
     tabController = TabController(length: 4, vsync: this);
-    getUserData();
   }
 
   @override

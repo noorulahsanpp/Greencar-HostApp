@@ -7,6 +7,7 @@ import 'package:driver_app/allwidgets/progressdialog.dart';
 import 'package:driver_app/main.dart';
 import 'package:driver_app/util/util.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:intl/intl.dart';
 
@@ -23,6 +24,7 @@ class _AddTripState extends State<AddTrip> {
   TextEditingController _toPlaceTextEditingController = TextEditingController();
   TextEditingController _dateTextEditingController = TextEditingController();
   TextEditingController _seatsTextEditingController = TextEditingController();
+  TextEditingController _sharepriceTextEditingController = TextEditingController();
 
   DateTime currentDate = DateTime.now();
 
@@ -59,12 +61,10 @@ class _AddTripState extends State<AddTrip> {
             Image(
               image: AssetImage("images/greencar.png"),
               width: 390,
-              height: 250,
+              height: 200,
               alignment: Alignment.center,
             ),
-            SizedBox(
-              height: 1,
-            ),
+
             Text(
               "Register Trip",
               textAlign: TextAlign.center,
@@ -93,7 +93,7 @@ class _AddTripState extends State<AddTrip> {
                   ),
                   TextField(
                     controller: _toPlaceTextEditingController,
-                    keyboardType: TextInputType.emailAddress,
+                    keyboardType: TextInputType.text,
                     decoration: InputDecoration(
                         labelText: "To",
                         labelStyle: TextStyle(fontSize: 14),
@@ -104,7 +104,7 @@ class _AddTripState extends State<AddTrip> {
                   ),
                   TextField(
                     controller: _dateTextEditingController,
-                    keyboardType: TextInputType.emailAddress,
+                    keyboardType: TextInputType.datetime,
                     decoration: InputDecoration(
                         suffixIcon: IconButton(
                           icon: Icon(
@@ -121,7 +121,7 @@ class _AddTripState extends State<AddTrip> {
                   ),
                   TextField(
                     controller: _seatsTextEditingController,
-                    obscureText: true,
+                    keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                         labelText: "Seats",
                         labelStyle: TextStyle(fontSize: 14),
@@ -129,6 +129,19 @@ class _AddTripState extends State<AddTrip> {
                   ),
                   SizedBox(
                     height: 10,
+                  ),
+                  TextField(
+                    controller: _sharepriceTextEditingController,
+                    keyboardType: TextInputType.number,
+                    style: TextStyle(fontSize: 20),
+                    decoration: InputDecoration(
+                      prefix: Icon(FontAwesomeIcons.rupeeSign),
+                        labelText: "Share Per Head",
+                        labelStyle: TextStyle(fontSize: 14),
+                        hintStyle: TextStyle(color: Colors.grey, fontSize: 10)),
+                  ),
+                  SizedBox(
+                    height: 20,
                   ),
                   RaisedButton(
                     onPressed: () {
@@ -210,34 +223,33 @@ class _AddTripState extends State<AddTrip> {
 
 
       Map<String, dynamic> tripDataMap = {
-        "to_place": _toPlaceTextEditingController.text.trim(),
-        "from_place": _fromPlaceTextEditingController.text.trim(),
+        "to_place": _toPlaceTextEditingController.text.trim().toUpperCase(),
+        "from_place": _fromPlaceTextEditingController.text.trim().toUpperCase(),
         "date": _dateTextEditingController.text.trim(),
         "seats": _seatsTextEditingController.text.trim(),
+        "shareprice":_sharepriceTextEditingController.text.trim(),
         "host": currentUser.userid,
         "fromplacelatlong" : fromplacelatlong1,
         "toplacelatlong" : toplacelatlong1,
       };
 
     driverReference.doc(currentUser.userid).collection("trips").add(tripDataMap).then((value) {
+      Map<String, dynamic> aa ={
+        "tripid":value.id,
+      };
+      driverReference.doc(currentUser.userid).collection("trips").doc(value.id).update(aa);
+      tripDataMap.addAll(aa);
+      FirebaseFirestore.instance.collection("trips").doc(value.id).set(tripDataMap);
       Util.displayToastMessage(
           "Your Trip has been created successfully", context);
       Navigator.pushNamed(
           context, MainScreen.idScreen);
     }).catchError((error) => print("Failed to add trip: $error"));
 
-      // DocumentSnapshot documentSnapshot = await driverReference.doc(user.uid).get();
-
-
-      // currentUser =HostModel.fromDocument(documentSnapshot);
-      // print("ssssssssssssssssssssssssssssssssssss${currentUser}");
-
-
     }
   Future<List<Location>> findPlace(String placeName) async{
     List<Location> locations;
       locations = await locationFromAddress(placeName);
     return locations;
-      print("ssssssssssssssssssssssssssssssssssssss$locations");
   }
 }
