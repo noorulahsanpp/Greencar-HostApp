@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:driver_app/allscreens/registrationscreen.dart';
 import 'package:driver_app/allscreens/viewRequest.dart';
 import 'package:driver_app/main.dart';
+import 'package:driver_app/theme/style.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -11,7 +12,7 @@ class RequestTabPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       body: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance.collection("hosts").doc(currentUser.userid).collection('trips')
               // .doc(currentUser.userid)
@@ -24,7 +25,7 @@ class RequestTabPage extends StatelessWidget {
             }
             final list = snapshot.data.docs;
             if (list.length<=0) {
-              return Center(child: new Text("No Request"));
+              return Scaffold(body: Center(child: new Text("No Request")),);
             }
             else {
               return ListView.separated(
@@ -41,7 +42,7 @@ class RequestTabPage extends StatelessWidget {
                           gradient: LinearGradient(
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
-                              colors: [Colors.white, Colors.blueGrey.shade50])
+                              colors: [Style.blacklight, Style.blacklight])
                       ),
                       margin: EdgeInsets.symmetric(horizontal: 6),
                       width: MediaQuery.of(context).size.width,
@@ -58,14 +59,14 @@ class RequestTabPage extends StatelessWidget {
                                 Expanded(
                                   child: Text("${list[index]["from_place"].toUpperCase()}",style: TextStyle(
                                       fontSize: 20,
-                                      color: Colors.black
+                                      color: Colors.white54
                                   ),),
                                 ),
                                 Expanded(child: Icon(FontAwesomeIcons.solidCaretSquareRight)),
                                 Expanded(
                                   child: Text("${list[index]["to_place"].toUpperCase()}",style: TextStyle(
                                       fontSize: 20,
-                                      color: Colors.black
+                                      color: Colors.white54
                                   ),),
                                 ),
                               ],
@@ -76,11 +77,11 @@ class RequestTabPage extends StatelessWidget {
                               children: [
                                 Text("Seats : ${list[index]["seats"]}",style: TextStyle(
                                     fontSize: 20,
-                                    color: Colors.black
+                                    color: Colors.white54
                                 ),),
                                 Text("Co-Passengers : 0",style: TextStyle(
                                     fontSize: 20,
-                                    color: Colors.black
+                                    color: Colors.white54
                                 ),),
                               ],
                             ),
@@ -90,7 +91,7 @@ class RequestTabPage extends StatelessWidget {
                       ),
                     ),
                     onTap: () => {
-Navigator.push(context, MaterialPageRoute(builder: (context) => ViewRequest(tripId:list[index]["tripid"],)))
+Navigator.push(context, MaterialPageRoute(builder: (context) => ViewRequest(tripId:list[index]["tripid"],fromplace: list[index]["from_place"],toplace: list[index]["to_place"],date: list[index]["date"],)))
                     },
 
                   ),

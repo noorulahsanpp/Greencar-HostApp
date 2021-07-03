@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:driver_app/allscreens/loginscreen.dart';
 import 'package:driver_app/allscreens/mainscreen.dart';
 import 'package:driver_app/allscreens/registrationscreen.dart';
 import 'package:driver_app/main.dart';
@@ -145,7 +146,8 @@ class CarInfoScreen extends StatelessWidget {
         .catchError((error) => print("Failed to add user: $error"));
     Util.displayToastMessage(
         "Your account has been created successfully", context);
+    FirebaseAuth.instance.signOut();
     Navigator.pushNamedAndRemoveUntil(
-        context, MainScreen.idScreen, (route) => false);
+        context, LoginScreen.idScreen, (route) => false);
   }
 }

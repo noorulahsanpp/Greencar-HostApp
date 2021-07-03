@@ -2,14 +2,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:driver_app/allscreens/mainscreen.dart';
 import 'package:driver_app/allscreens/registrationscreen.dart';
 import 'package:driver_app/allwidgets/progressdialog.dart';
+import 'package:driver_app/theme/style.dart';
 import 'package:driver_app/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ViewRequest extends StatefulWidget {
   final String tripId;
-
-  const ViewRequest({Key key, this.tripId}) : super(key: key);
+  final String fromplace;
+  final String toplace;
+  final String date;
+  const ViewRequest({Key key, this.tripId, this.fromplace, this.toplace, this.date}) : super(key: key);
 
   @override
   _ViewRequestState createState() => _ViewRequestState();
@@ -19,6 +22,7 @@ class _ViewRequestState extends State<ViewRequest> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       body: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
               .collection("hosts")
@@ -33,7 +37,7 @@ class _ViewRequestState extends State<ViewRequest> {
             }
             final list = snapshot.data.docs;
             if (list.length<=0) {
-              return Center(child: new Text("No Request"));
+              return Scaffold(body: Center(child: new Text("No Request")),);
             }else {
               return ListView.separated(
                 scrollDirection: Axis.vertical,
@@ -49,22 +53,20 @@ class _ViewRequestState extends State<ViewRequest> {
                           gradient: LinearGradient(
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
-                              colors: [Colors.white, Colors.blueGrey.shade50])),
+                              colors: [Style.blacklight, Style.blacklight])),
                       margin: EdgeInsets.symmetric(horizontal: 6),
                       width: MediaQuery.of(context).size.width,
-                      height: 100,
+                      height: 125,
                       // color: Color.fromRGBO(64, 75, 96, .9),
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: Text(
-                                "${list[index]["ridername"].toUpperCase()}",
-                                style: TextStyle(
-                                    fontSize: 20, color: Colors.black),
-                              ),
+                            Text(
+                              "${list[index]["ridername"].toUpperCase()}",
+                              style: TextStyle(
+                                  fontSize: 20, color: Colors.white54),
                             ),
                             SizedBox(
                               height: 1,
@@ -75,21 +77,22 @@ class _ViewRequestState extends State<ViewRequest> {
                                   child: Text(
                                     "${list[index]["riderphone"].toUpperCase()}",
                                     style: TextStyle(
-                                        fontSize: 20, color: Colors.black),
+                                        fontSize: 20, color: Colors.white54),
                                   ),
                                 ),
                                 IconButton(
                                     icon: Icon(
                                       Icons.done,
-                                      color: Colors.green,
+                                      color: Colors.green, size: 50,
                                     ),
                                     onPressed: () {
                                       acceptRequest(
                                           context, list[index]["riderid"],list[index]["tripid"], );
                                     }),
+                                SizedBox(width: 10,),
                                 IconButton(
                                     icon: Icon(
-                                      Icons.close,
+                                      Icons.close, color: Colors.red,size: 50,
                                     ),
                                     onPressed: () {
                                       rejectRequest(
@@ -106,7 +109,7 @@ class _ViewRequestState extends State<ViewRequest> {
                                 Text(
                                   "Rating : ${list[index]["riderrating"]}",
                                   style: TextStyle(
-                                      fontSize: 20, color: Colors.black),
+                                      fontSize: 20, color: Colors.white54),
                                 ),
                               ],
                             ),
@@ -138,11 +141,17 @@ class _ViewRequestState extends State<ViewRequest> {
     Map<String, dynamic> tripDataMap = {
       "riderid": currentUser.userid,
       "tripid": tripid,
+      "from_place":widget.fromplace,
+      "to_place":widget.toplace,
+      "date":widget.date,
     };
 
+    FirebaseFirestore.instance.collection("hosts").doc(currentUser.userid).collection("trips").doc(tripid).collection("requests").where("riderid", isEqualTo: riderid).get().then((value) {
+      value.docs.forEach((element) {FirebaseFirestore.instance.collection("hosts").doc(currentUser.userid).collection("trips").doc(tripid).collection("requests").doc(element.id).delete();});
+    });
     FirebaseFirestore.instance
         .collection('users')
-        .doc(currentUser.userid)
+        .doc(riderid)
         .collection('trips')
         .add(tripDataMap)
         .then((value) {
@@ -157,8 +166,9 @@ class _ViewRequestState extends State<ViewRequest> {
               .delete();
         });
       });
-      Navigator.pushNamed(context, MainScreen.idScreen);
+
     }).catchError((error) => print("Failed to add request: $error"));
+    Navigator.pushNamed(context, MainScreen.idScreen);
   }
 
   Future<void> rejectRequest(BuildContext context, String riderid, String tripid) async {

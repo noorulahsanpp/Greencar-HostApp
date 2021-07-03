@@ -1,3 +1,4 @@
+import 'package:driver_app/util/configmaps.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
@@ -77,7 +78,7 @@ class LoginScreen extends StatelessWidget {
                         Util.displayToastMessage(
                             "Email Address is not valid", context);
                       } else if (_passwordTextEditingController.text.length <
-                          7) {
+                          6) {
                         Util.displayToastMessage(
                             "Password must be at least 6 characters", context);
                       } else {
@@ -135,24 +136,30 @@ class LoginScreen extends StatelessWidget {
       Util.displayToastMessage("Error: " + errMsg.toString(), context);
     }))
         .user;
-    if (user != null) {
-      usersRef.child(user.uid).once().then((DataSnapshot snap) {
-        if (snap.value != null) {
 
-          Navigator.pushNamedAndRemoveUntil(
-              context, MainScreen.idScreen, (route) => false);
-          Util.displayToastMessage("You're logged in", context);
-        } else {
-          _firebaseAuth.signOut();
-          Navigator.pop(context);
-          Util.displayToastMessage(
-              "No Record exits for this user. Please create new account",
-              context);
-        }
-      });
-    } else {
-      Navigator.pop(context);
-      Util.displayToastMessage("Error occured. Failed to sign in.", context);
+    if(user.emailVerified) {
+      if (user != null) {
+        usersRef.child(user.uid).once().then((DataSnapshot snap) {
+          if (snap.value != null) {
+            currentFirebaseUser = user;
+            Navigator.pushNamedAndRemoveUntil(
+                context, MainScreen.idScreen, (route) => false);
+            Util.displayToastMessage("You're logged in", context);
+          } else {
+            _firebaseAuth.signOut();
+            Navigator.pop(context);
+            Util.displayToastMessage(
+                "No Record exits for this user. Please create new account",
+                context);
+          }
+        });
+      } else {
+        Navigator.pop(context);
+        Util.displayToastMessage("Error occured. Failed to sign in.", context);
+      }
+    }
+    else{
+      Util.displayToastMessage("Please verify your email", context);
     }
   }
 }

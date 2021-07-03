@@ -175,17 +175,21 @@ class RegistrationScreen extends StatelessWidget {
     }))
         .user;
     if (user != null) {
-      Map<String, String> userDataMap = {
+      Map<String, dynamic> userDataMap = {
         "name": _nameTextEditingController.text.trim(),
         "email": _emailTextEditingController.text.trim(),
         "phone": _phoneTextEditingController.text.trim(),
         "userid": user.uid,
+        "rating" : 5,
+        "noofrating":1,
       };
 
       driverReference.doc(user.uid).set(userDataMap).then((value) => print("User Added"))
           .catchError((error) => print("Failed to add user: $error"));
       usersRef.child(user.uid).set(userDataMap);
 
+      user.sendEmailVerification();
+      Util.displayToastMessage("Please verify your email", context);
       currentFirebaseUser = user;
 
       DocumentSnapshot documentSnapshot = await driverReference.doc(user.uid).get();

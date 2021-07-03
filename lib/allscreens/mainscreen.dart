@@ -48,7 +48,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     // TODO: implement initState
 getUserData();
     super.initState();
-    tabController = TabController(length: 4, vsync: this);
+    tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -67,7 +67,6 @@ getUserData();
         children: [
           HomeTabPage(),
           RequestTabPage(),
-          ReviewsTabPage(),
           ProfileTabPage()
         ],
       ),
@@ -75,7 +74,6 @@ getUserData();
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(icon: Icon(Icons.request_page), label: "Requests"),
-          BottomNavigationBarItem(icon: Icon(Icons.rate_review), label: "Reviews"),
           BottomNavigationBarItem(icon: Icon(Icons.verified_user), label: "Profle"),
         ],
         unselectedItemColor: Colors.black,

@@ -6,6 +6,7 @@ import 'package:driver_app/allscreens/registrationscreen.dart';
 import 'package:driver_app/allwidgets/progressdialog.dart';
 import 'package:driver_app/main.dart';
 import 'package:driver_app/util/util.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geocoding/geocoding.dart';
@@ -26,8 +27,11 @@ class _AddTripState extends State<AddTrip> {
   TextEditingController _seatsTextEditingController = TextEditingController();
   TextEditingController _sharepriceTextEditingController = TextEditingController();
 
+  TextEditingController _timeTextEditingController = TextEditingController();
+
   DateTime currentDate = DateTime.now();
 
+  TimeOfDay _time = TimeOfDay(hour: 7, minute: 15);
 
   Future<void> _selectDate(BuildContext context) async {
     final DateFormat formatter = DateFormat('dd-MM-yyyy');
@@ -41,6 +45,21 @@ class _AddTripState extends State<AddTrip> {
         currentDate = pickedDate;
         _dateTextEditingController.text = formatter.format(currentDate);
       });
+  }
+
+  void _selectTime() async {
+    final TimeOfDay newTime = await showTimePicker(
+      context: context,
+      initialTime: _time,
+    );
+    if (newTime != null) {
+      setState(() {
+        _time = newTime;
+        print(_time);
+        _timeTextEditingController = TextEditingController(text: _time.format(context));
+        print(_timeTextEditingController.text);
+      });
+    }
   }
 
   @override
@@ -102,6 +121,7 @@ class _AddTripState extends State<AddTrip> {
                   SizedBox(
                     height: 1,
                   ),
+
                   TextField(
                     controller: _dateTextEditingController,
                     keyboardType: TextInputType.datetime,
@@ -113,6 +133,24 @@ class _AddTripState extends State<AddTrip> {
                           onPressed: () => _selectDate(context),
                         ),
                         labelText: "Date",
+                        labelStyle: TextStyle(fontSize: 14),
+                        hintStyle: TextStyle(color: Colors.grey, fontSize: 10)),
+                  ),
+                  SizedBox(
+                    height: 1,
+                  ),
+
+                  TextField(
+                    controller: _timeTextEditingController,
+                    keyboardType: TextInputType.datetime,
+                    decoration: InputDecoration(
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            Icons.more_time,
+                          ),
+                          onPressed: () => _selectTime(),
+                        ),
+                        labelText: "Time",
                         labelStyle: TextStyle(fontSize: 14),
                         hintStyle: TextStyle(color: Colors.grey, fontSize: 10)),
                   ),
@@ -226,11 +264,13 @@ class _AddTripState extends State<AddTrip> {
         "to_place": _toPlaceTextEditingController.text.trim().toUpperCase(),
         "from_place": _fromPlaceTextEditingController.text.trim().toUpperCase(),
         "date": _dateTextEditingController.text.trim(),
+        "time": _timeTextEditingController.text.trim(),
         "seats": _seatsTextEditingController.text.trim(),
         "shareprice":_sharepriceTextEditingController.text.trim(),
         "host": currentUser.userid,
         "fromplacelatlong" : fromplacelatlong1,
         "toplacelatlong" : toplacelatlong1,
+        "status": "idle",
       };
 
     driverReference.doc(currentUser.userid).collection("trips").add(tripDataMap).then((value) {

@@ -1,15 +1,17 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:driver_app/allscreens/addTrip.dart';
 import 'package:driver_app/allscreens/mainscreen.dart';
 import 'package:driver_app/allscreens/registrationscreen.dart';
+import 'package:driver_app/allscreens/startMap.dart';
 import 'package:driver_app/allwidgets/progressdialog.dart';
 import 'package:driver_app/main.dart';
 import 'package:driver_app/models/host_model.dart';
 import 'package:driver_app/models/trip_model.dart';
+import 'package:driver_app/theme/style.dart';
 import 'package:driver_app/util/configmaps.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 final userRef = FirebaseFirestore.instance.collection("hosts").doc(userId);
@@ -34,21 +36,22 @@ class _HomeTabPageState extends State<HomeTabPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-        body: StreamBuilder<QuerySnapshot>(
-            stream: driverReference
-                .doc(currentUser.userid)
-                .collection("trips").orderBy("date")
-                .snapshots(),
-            builder:
-                (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              if (snapshot.hasError) {
-                return Text("Error");
-              }
-              final list = snapshot.data.docs;
-              if (list.length<=0) {
-                return Center(child: new Text("No Trips"));
-              }else {
+      backgroundColor: Colors.black,
+      body: StreamBuilder<QuerySnapshot>(
+          stream: driverReference
+              .doc(currentUser.userid)
+              .collection("trips")
+              .orderBy("date")
+              .snapshots(),
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (snapshot.hasError) {
+              return Text("Error");
+            }
+            final list = snapshot.data.docs;
+            if (list.length <= 0) {
+              return Scaffold(body: Center(child: new Text("No Trips")),);
+            } else {
               return ListView.separated(
                 scrollDirection: Axis.vertical,
                 separatorBuilder: (context, index) => SizedBox(
@@ -63,8 +66,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
                           gradient: LinearGradient(
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
-                              colors: [Colors.white, Colors.blueGrey.shade50])
-                      ),
+                              colors: [Style.blacklight, Style.blacklight])),
                       margin: EdgeInsets.symmetric(horizontal: 6),
                       width: MediaQuery.of(context).size.width,
                       height: 160,
@@ -78,60 +80,78 @@ class _HomeTabPageState extends State<HomeTabPage> {
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 Expanded(
-                                  child: Text("${list[index]["from_place"].toUpperCase()}",style: TextStyle(
-                                      fontSize: 20,
-                                      color: Colors.black
-                                  ),),
+                                  child: Text(
+                                    "${list[index]["from_place"].toUpperCase()}",
+                                    style: TextStyle(
+                                        fontSize: 20, color: Colors.white54),
+                                  ),
                                 ),
-                                Expanded(child: Icon(FontAwesomeIcons.solidCaretSquareRight)),
                                 Expanded(
-                                  child: Text("${list[index]["to_place"].toUpperCase()}",style: TextStyle(
-                                      fontSize: 20,
-                                    color: Colors.black
-                                  ),),
+                                    child: Icon(
+                                  FontAwesomeIcons.solidCaretSquareRight,
+                                  color: Colors.grey,
+                                )),
+                                Expanded(
+                                  child: Text(
+                                    "${list[index]["to_place"].toUpperCase()}",
+                                    style: TextStyle(
+                                        fontSize: 20, color: Colors.white54),
+                                  ),
                                 ),
                               ],
                             ),
-                            SizedBox(height: 1,),
+                            SizedBox(
+                              height: 1,
+                            ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text("Seats : ${list[index]["seats"]}",style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.black
-                                ),),
-                                Text("Co-Passengers : 0",style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.black
-                                ),),
+                                Text(
+                                  "Seats : ${list[index]["seats"]}",
+                                  style: TextStyle(
+                                      fontSize: 20, color: Colors.white54),
+                                ),
+                                Text(
+                                  "Time : ${list[index]["time"]}",
+                                  style: TextStyle(
+                                      fontSize: 20, color: Colors.white54),
+                                ),
                               ],
                             ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text("Per Head : ${list[index]["shareprice"]}",style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.black
-                                ),),
-                                Text("Date : ${list[index]["date"]}",style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.black
-                                ),),
+                                Text(
+                                  "Per Head : ${list[index]["shareprice"]}",
+                                  style: TextStyle(
+                                      fontSize: 20, color: Colors.white54),
+                                ),
+                                Text(
+                                  "Date : ${list[index]["date"]}",
+                                  style: TextStyle(
+                                      fontSize: 20, color: Colors.white54),
+                                ),
                               ],
                             ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                                  child: RaisedButton(onPressed: (){
-
-                                  },
-                                  child: Text("START"),),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20),
+                                  child: RaisedButton(
+                                    color: Colors.green.shade400,
+                                    onPressed: () {
+                                      startTrip(context, list[index].id);
+                                    },
+                                    child: Text("START"),
+                                  ),
                                 ),
-                                RaisedButton(onPressed: (){
-cancelTrip(context, list[index].id);
-                                },
+                                RaisedButton(
+                                  color: Colors.red.shade400,
+                                  onPressed: () {
+                                    cancelTrip(context, list[index].id);
+                                  },
                                   child: Text("CANCEL"),
                                 ),
                               ],
@@ -150,7 +170,7 @@ cancelTrip(context, list[index].id);
           }),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.blue,
         onPressed: () {
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => AddTrip()));
@@ -159,22 +179,48 @@ cancelTrip(context, list[index].id);
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
-  Future<void> cancelTrip(BuildContext context,String tripid) async {
+
+  Future<void> cancelTrip(BuildContext context, String tripid) async {
     showDialog(
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
           return ProgressDialog(
-            message: "Setting Up, Please wait...",
+            message: "Cancelling, Please wait...",
           );
         });
 
     FirebaseFirestore.instance
         .collection('trips')
-        .doc(tripid).delete().then((value) {
-          FirebaseFirestore.instance.collection('hosts').doc(currentUser.userid).collection('trips').doc(tripid).delete();
-          Navigator.pushNamed(context, MainScreen.idScreen);
+        .doc(tripid)
+        .delete()
+        .then((value) {
+      FirebaseFirestore.instance
+          .collection('hosts')
+          .doc(currentUser.userid)
+          .collection('trips')
+          .doc(tripid)
+          .delete();
+      Navigator.pushNamed(context, MainScreen.idScreen);
     });
+  }
+
+  Future<void> startTrip(BuildContext context, String tripid) async {
+    Map<String, dynamic> tripDataMap = {
+      "status": "run",
+    };
+    FirebaseFirestore.instance
+        .collection('trips')
+        .doc(tripid).update(tripDataMap)
+        .then((value) {
+      FirebaseFirestore.instance
+          .collection('hosts')
+          .doc(currentUser.userid)
+          .collection('trips')
+          .doc(tripid)
+          .update(tripDataMap);
+    });
+    Navigator.push(context, MaterialPageRoute(builder: (_)=> MapView(tripId: tripid,)));
   }
 }
 
